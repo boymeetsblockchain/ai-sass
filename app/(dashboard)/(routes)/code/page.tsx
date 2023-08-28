@@ -1,9 +1,10 @@
 "use client"
 import { Heading } from "@/components/heading";
-import { MessageSquare } from "lucide-react";
+import { Code2,} from "lucide-react";
 import {useForm} from 'react-hook-form'
 import axios from 'axios'
 import { Input } from "@/components/ui/input";
+import ReactMarkdown from "react-markdown";
 import * as z from 'zod'
 import {zodResolver} from '@hookform/resolvers/zod'
 import { formSchema } from "./constants";
@@ -19,8 +20,8 @@ import { UserAvatar } from "@/components/user-avatar";
 import { BotAvatar } from "@/components/bot-avatar";
 import { useProModal } from "@/hooks/use-pro-modal";
 import { toast } from "react-hot-toast";
-const Conversation = () => {
-    const proModal = useProModal()
+const Code = () => {
+  const proModal = useProModal()
    const router = useRouter()
    const [messages,setMessages]= useState<ChatCompletionRequestMessage[]>([])
     const form = useForm<z.infer<typeof formSchema>>({
@@ -40,7 +41,7 @@ const Conversation = () => {
     
     const newMessages= [...messages,userMessage]
 
-    const response = await axios.post("/api/conversation",{
+    const response = await axios.post("/api/code",{
         messages:newMessages
     })
 
@@ -59,10 +60,10 @@ const Conversation = () => {
     return ( 
         <div>
         <Heading
-         title="Conversation"
-         description="Our most advanced conversation model"
-         icon={MessageSquare}
-         iconColor="text-violet-500"
+         title="Code Generation"
+         description="generate code with descriptive text"
+         icon={Code2}
+         iconColor="text-green-700"
          bgColor="bg-violet-500/10"
         />
         <div className="px-4 lg:px-8">
@@ -86,7 +87,7 @@ const Conversation = () => {
                         <Input
                         className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent"
                         disabled={isLoading} 
-                        placeholder="How do I calculate the radius of a circle?" 
+                        placeholder="simple modal setup using react-hook" 
                         {...field}
                       />
                         </FormControl>
@@ -110,7 +111,7 @@ const Conversation = () => {
                 }
                 {
                     messages.length === 0 && !isLoading &&(
-                        <Empty label={"No Conversation Started"}/>
+                        <Empty label={"No Code Started"}/>
                     )
                 }
                 <div className="flex flex-col-reverse gap-y-4">
@@ -123,9 +124,18 @@ const Conversation = () => {
                 )}
               >
                 {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
-                <p className="text-sm">
-                  {message.content}
-                </p>
+                <ReactMarkdown components={{
+                  pre: ({ node, ...props }) => (
+                    <div className="overflow-auto w-full my-2 bg-black/10 p-2 rounded-lg">
+                      <pre {...props} />
+                    </div>
+                  ),
+                  code: ({ node, ...props }) => (
+                    <code className="bg-black/10 rounded-lg p-1" {...props} />
+                  )
+                }} className="text-sm overflow-hidden leading-7">
+                  {message.content || ""}
+                </ReactMarkdown>
               </div>
             ))}
                 </div>
@@ -135,4 +145,4 @@ const Conversation = () => {
      );
 }
  
-export default Conversation;
+export default Code;
